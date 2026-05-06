@@ -44,7 +44,7 @@ if uploaded_file and st.session_state.qa is None:
         loader = PyPDFLoader(file_path)
         documents = loader.load()
 
-        # Split text
+        # Split text / Chunking
         splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
         docs = splitter.split_documents(documents)
 
