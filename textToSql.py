@@ -1,7 +1,24 @@
 import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
+from sqlalchemy import create_engine, inspect, text
 import os
+
+
+engine = create_engine(
+    "postgresql+psycopg2://postgres:koju%40123@localhost:5432/postgres"
+)
+
+def get_schema(engine):
+    inspector = inspect(engine)
+
+    schema_lines = []
+    for table in inspector.get_table_names():
+        columns = inspector.get_columns(table)
+        cols = [c["name"] for c in columns]
+        schema_lines.append(f"{table}({', '.join(cols)})")
+
+    return "\n".join(schema_lines)
 
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
@@ -9,10 +26,8 @@ st.title("🧠 Text to SQL")
 
 llm = ChatOpenAI(model="gpt-4o-mini")
 
-schema = """
-users(id, name, email, created_at)
-orders(id, user_id, amount, created_at)
-"""
+schema = get_schema(engine)
+print(schema)
 
 template = """
 You are a SQL expert.
